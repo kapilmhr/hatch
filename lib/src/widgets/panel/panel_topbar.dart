@@ -1,10 +1,9 @@
-import 'package:flutter/widgets.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/material.dart';
 
 import '../../theme/hatch_theme_data.dart';
 
 /// The top bar of the Hatch panel.
-class PanelTopBar extends StatefulWidget {
+class PanelTopBar extends StatelessWidget {
   final HatchPanelColors colors;
   final VoidCallback onClose;
 
@@ -15,32 +14,8 @@ class PanelTopBar extends StatefulWidget {
   });
 
   @override
-  State<PanelTopBar> createState() => _PanelTopBarState();
-}
-
-class _PanelTopBarState extends State<PanelTopBar> {
-  String _version = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVersion();
-  }
-
-  Future<void> _loadVersion() async {
-    try {
-      final info = await PackageInfo.fromPlatform();
-      if (mounted) {
-        setState(() => _version = 'v${info.version}');
-      }
-    } catch (_) {
-      // PackageInfo may not resolve in tests
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final c = widget.colors;
+    final c = colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -54,7 +29,7 @@ class _PanelTopBarState extends State<PanelTopBar> {
               borderRadius: BorderRadius.circular(4),
             ),
             alignment: Alignment.center,
-              child: const Text(
+            child: const Text(
               'H',
               style: TextStyle(
                 color: Color(0xFFFFFFFF),
@@ -77,36 +52,21 @@ class _PanelTopBarState extends State<PanelTopBar> {
             ),
           ),
           const Spacer(),
-          if (_version.isNotEmpty) ...[
-            Text(
-              _version,
-              style: TextStyle(
-                color: c.textTertiary,
-                fontSize: 10,
-                fontFamily: 'monospace',
-                decoration: TextDecoration.none,
-              ),
-            ),
-            const SizedBox(width: 12),
-          ],
           GestureDetector(
-            onTap: widget.onClose,
+            onTap: onClose,
             child: Container(
-              width: 20,
-              height: 20,
+              width: 28,
+              height: 28,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: c.surfaceElevated,
+                border: Border.all(color: c.textTertiary, width: 1),
               ),
               alignment: Alignment.center,
-              child: Text(
-                '✕',
-                style: TextStyle(
-                  color: c.textSecondary,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.none,
-                ),
+              child: Icon(
+                Icons.close,
+                color: c.textSecondary,
+                size: 16,
               ),
             ),
           ),

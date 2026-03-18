@@ -27,9 +27,7 @@ class PersonasTab extends StatefulWidget {
 
 class _PersonasTabState extends State<PersonasTab> {
   StreamSubscription<HatchState>? _sub;
-  String _searchQuery = '';
   int? _expandedIndex;
-  bool _showAll = false;
   final Map<int, bool> _showPassword = {};
 
   @override
@@ -92,143 +90,35 @@ class _PersonasTabState extends State<PersonasTab> {
     final personas = registry.activeEnvironment.personas;
     final active = registry.activePersona;
 
-    // Filtering
-    final filteredPersonas = _searchQuery.isEmpty
-        ? personas
-        : personas.where((p) {
-            final q = _searchQuery.toLowerCase();
-            return p.name.toLowerCase().contains(q) ||
-                (p.role?.toLowerCase().contains(q) ?? false) ||
-                (p.tag?.toLowerCase().contains(q) ?? false);
-          }).toList();
-
     // Group by role
     final groups = <String, List<MapEntry<int, HatchPersona>>>{};
-    for (var i = 0; i < filteredPersonas.length; i++) {
-      final p = filteredPersonas[i];
+    for (var i = 0; i < personas.length; i++) {
+      final p = personas[i];
       if (p.credentials == null && p.role == null) continue; // Guest handled separately
       final groupName = p.role != null
           ? p.role![0].toUpperCase() + p.role!.substring(1)
           : 'Other';
       groups.putIfAbsent(groupName, () => []);
-      groups[groupName]!.add(MapEntry(personas.indexOf(p), p));
+      groups[groupName]!.add(MapEntry(i, p));
     }
 
-    // "See all" logic
-    final totalPersonas = personas.length;
-    final shouldShowSeeAll = totalPersonas > 5 && !_showAll && _searchQuery.isEmpty;
-
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 4),
       children: [
-        // Search bar
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: SizedBox(
-            height: 32,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: c.border),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: EditableText(
-                  controller: TextEditingController(text: _searchQuery),
-                  focusNode: FocusNode(),
-                  style: TextStyle(
-                    color: c.textPrimary,
-                    fontSize: 11,
-                    fontFamily: 'monospace',
-                  ),
-                  cursorColor: c.accent,
-                  backgroundCursorColor: c.surface,
-                  onChanged: (value) {
-                    setState(() => _searchQuery = value);
-                  },
-                ),
-              ),
+        for (final group in groups.entries) ...[
+          _buildGroupHeader(c, group.key, group.value.length),
+          for (final entry in group.value)
+            _buildPersonaRow(
+              c,
+              entry.key,
+              entry.value,
+              entry.value.name == active?.name,
             ),
-          ),
-        ),
-        // Personas list
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            children: [
-              if (shouldShowSeeAll) ...[
-                // Show active + limited set
-                if (active != null)
-                  _buildPersonaRow(c, personas.indexOf(active), active, true),
-                ..._buildLimitedList(c, personas, active),
-                GestureDetector(
-                  onTap: () => setState(() => _showAll = true),
-                  child: Container(
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: c.surface,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'See all ($totalPersonas) →',
-                      style: TextStyle(
-                        color: c.accent,
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ),
-                ),
-              ] else ...[
-                // Full grouped list
-                for (final group in groups.entries) ...[
-                  _buildGroupHeader(c, group.key, group.value.length),
-                  for (final entry in group.value)
-                    _buildPersonaRow(
-                      c,
-                      entry.key,
-                      entry.value,
-                      entry.value.name == active?.name,
-                    ),
-                ],
-              ],
-              // Guest row always last
-              _buildGuestRow(c, active == null),
-              if (filteredPersonas.isEmpty && _searchQuery.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: Text(
-                      'No personas match',
-                      style: TextStyle(
-                        color: c.textTertiary,
-                        fontSize: 11,
-                        fontFamily: 'monospace',
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+        ],
+        // Guest row always last
+        _buildGuestRow(c, active == null),
       ],
     );
-  }
-
-  List<Widget> _buildLimitedList(
-      HatchPanelColors c, List<HatchPersona> personas, HatchPersona? active) {
-    final others = personas
-        .where((p) => p.name != active?.name && p.credentials != null)
-        .take(2);
-    return others
-        .map((p) => _buildPersonaRow(c, personas.indexOf(p), p, false))
-        .toList();
   }
 
   Widget _buildGroupHeader(HatchPanelColors c, String name, int count) {

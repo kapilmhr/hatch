@@ -9,7 +9,6 @@ import 'panel_status_pills.dart';
 import 'panel_toast.dart';
 import 'tabs/environments_tab.dart';
 import 'tabs/flags_tab.dart';
-import 'tabs/network_tab.dart';
 import 'tabs/personas_tab.dart';
 import 'tabs/shortcuts_section.dart';
 
@@ -40,7 +39,7 @@ class _HatchPanelShellState extends State<HatchPanelShell> {
       (HatchRegistry.instance?.shortcuts.length ?? 0) >= 3;
 
   List<String> get _tabLabels {
-    final labels = ['ENVIRONMENTS', 'PERSONAS', 'FLAGS', 'NETWORK'];
+    final labels = ['ENVIRONMENTS', 'PERSONAS', 'FLAGS'];
     if (_hasShortcuts) labels.add('SHORTCUTS');
     return labels;
   }
@@ -137,8 +136,6 @@ class _HatchPanelShellState extends State<HatchPanelShell> {
           onToast: _showToast,
         );
       case 3:
-        return NetworkTab(colors: widget.colors, onToast: _showToast);
-      case 4:
         return ShortcutsSection(
           colors: widget.colors,
           onClose: widget.onCloseWithCallback,

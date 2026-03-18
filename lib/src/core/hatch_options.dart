@@ -59,15 +59,11 @@ class HatchOptions {
   /// Dart define keys to read via [String.fromEnvironment].
   final List<String> dartDefineKeys;
 
-  /// Maximum number of network log entries to retain in memory.
-  final int maxNetworkLogEntries;
-
   /// Creates [HatchOptions].
   const HatchOptions({
     this.triggerModes = const {HatchTrigger.twoFingerLongPress},
     this.presentationStyle = HatchStyle.fullScreen,
     this.panelTheme = HatchTheme.system,
     this.dartDefineKeys = const [],
-    this.maxNetworkLogEntries = 50,
   });
 }

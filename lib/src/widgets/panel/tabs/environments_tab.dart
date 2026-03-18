@@ -27,6 +27,7 @@ class EnvironmentsTab extends StatefulWidget {
 class _EnvironmentsTabState extends State<EnvironmentsTab> {
   StreamSubscription<HatchState>? _sub;
   int? _expandedIndex;
+  HatchEnvironment? _pendingDangerous;
 
   @override
   void initState() {
@@ -42,21 +43,18 @@ class _EnvironmentsTabState extends State<EnvironmentsTab> {
     super.dispose();
   }
 
-  Future<void> _switchEnvironment(HatchEnvironment env) async {
+  void _switchEnvironment(HatchEnvironment env) {
     if (env.isDangerous) {
-      final confirmed = await _showDangerousDialog(env);
-      if (confirmed != true) return;
+      setState(() => _pendingDangerous = env);
+      return;
     }
-    await Hatch.setEnvironment(env);
-    widget.onToast('✓ Switched to ${env.name}');
+    _confirmSwitch(env);
   }
 
-  Future<bool?> _showDangerousDialog(HatchEnvironment env) async {
-    return showWidgetDialog<bool>(
-      context,
-      widget.colors,
-      env.name,
-    );
+  Future<void> _confirmSwitch(HatchEnvironment env) async {
+    setState(() => _pendingDangerous = null);
+    await Hatch.setEnvironment(env);
+    widget.onToast('✓ Switched to ${env.name}');
   }
 
   @override
@@ -68,10 +66,12 @@ class _EnvironmentsTabState extends State<EnvironmentsTab> {
     final active = registry.activeEnvironment;
     final c = widget.colors;
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: envs.length,
-      itemBuilder: (context, index) {
+    return Stack(
+      children: [
+        ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: envs.length,
+          itemBuilder: (context, index) {
         final env = envs[index];
         final isActive = env.name == active.name;
         final isExpanded = _expandedIndex == index;
@@ -86,6 +86,7 @@ class _EnvironmentsTabState extends State<EnvironmentsTab> {
           behavior: HitTestBehavior.opaque,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
               color: isActive ? c.accentSoft : null,
@@ -264,113 +265,106 @@ class _EnvironmentsTabState extends State<EnvironmentsTab> {
           ),
         );
       },
-    );
-  }
-}
-
-/// Shows a confirmation dialog for dangerous environments.
-Future<bool?> showWidgetDialog<T>(
-  BuildContext context,
-  HatchPanelColors c,
-  String envName,
-) async {
-  return showGeneralDialog<bool>(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: 'Dismiss',
-    barrierColor: const Color(0x73000000),
-    pageBuilder: (ctx, a1, a2) {
-      return Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 40),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: c.background,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: c.border),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '⚠️',
-                style: TextStyle(
-                  fontSize: 24,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Switch to $envName?',
-                style: TextStyle(
-                  color: c.textPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'This environment points to real production data. '
-                'Actions will affect real users.',
-                style: TextStyle(
-                  color: c.textSecondary,
-                  fontSize: 13,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.of(ctx).pop(false),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: c.surfaceElevated,
-                        borderRadius: BorderRadius.circular(8),
+        ),
+        // Inline confirmation dialog for dangerous environments
+        if (_pendingDangerous != null)
+          GestureDetector(
+            onTap: () => setState(() => _pendingDangerous = null),
+            child: Container(
+              color: const Color(0x73000000),
+              alignment: Alignment.center,
+              child: GestureDetector(
+                onTap: () {}, // absorb taps so scrim tap closes
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: c.background,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: c.border),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        '⚠️',
+                        style: TextStyle(fontSize: 24, decoration: TextDecoration.none),
                       ),
-                      child: Text(
-                        'Cancel',
+                      const SizedBox(height: 12),
+                      Text(
+                        'Switch to ${_pendingDangerous!.name}?',
+                        style: TextStyle(
+                          color: c.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.none,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'This environment points to real production data. '
+                        'Actions will affect real users.',
                         style: TextStyle(
                           color: c.textSecondary,
                           fontSize: 13,
-                          fontWeight: FontWeight.w500,
                           decoration: TextDecoration.none,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () => Navigator.of(ctx).pop(true),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: c.red,
-                        borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => setState(() => _pendingDangerous = null),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: c.surfaceElevated,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: c.textSecondary,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () => _confirmSwitch(_pendingDangerous!),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: c.red,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Text(
+                                'Switch',
+                                style: TextStyle(
+                                  color: Color(0xFFFFFFFF),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        'Switch',
-                        style: TextStyle(
-                          color: Color(0xFFFFFFFF),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ],
+            ),
           ),
-        ),
-      );
-    },
-  );
+      ],
+    );
+  }
 }

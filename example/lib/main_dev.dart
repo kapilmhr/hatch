@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hatch/hatch.dart';
-import 'bootstrap.dart';
+import 'initialiser.dart';
 import 'app.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/paywall_screen.dart';
@@ -8,7 +8,7 @@ import 'screens/profile_screen.dart';
 import 'screens/settings_screen.dart';
 
 void main() async {
-  await bootstrap();
+  await initialise();
 
   await Hatch.initFromAsset(
     'assets/hatch/hatch_config.json',

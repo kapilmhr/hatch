@@ -1,6 +1,6 @@
 # Hatch
 
-An in-app developer overlay for Flutter. Switch environments, personas, feature flags, and inspect network requests — at runtime, without rebuilding.
+An in-app developer overlay for Flutter. Switch environments, personas, and feature flags - at runtime, without rebuilding.
 
 ---
 
@@ -22,10 +22,9 @@ Without Hatch, switching from a staging API to a local API means:
 
 | Feature | Description |
 |---|---|
-| **Environment switching** | Switch API base URL at runtime — local, staging, production |
+| **Environment switching** | Switch API base URL at runtime - local, staging, production |
 | **Persona switching** | Switch test user accounts with one tap, triggering your auth flow |
 | **Feature flags** | Toggle flags on and off, see changes instantly via `HatchBuilder` |
-| **Network inspector** | View live HTTP requests, headers, bodies, status codes, durations |
 | **Screen shortcuts** | Jump to any registered screen directly from the panel |
 | **Dart defines** | Inspect `--dart-define` values without digging through build configs |
 | **Production safe** | Zero Hatch code compiled into production builds (with recommended pattern) |
@@ -36,9 +35,10 @@ Without Hatch, switching from a staging API to a local API means:
 
 Flutter runs `lib/main.dart` by default. When you pass `-t lib/main_dev.dart` to `flutter run`, Flutter compiles only code reachable from that file.
 
-Hatch uses this: your production `main.dart` never imports Hatch. Your dev `main_dev.dart` does. Therefore Hatch — including all test credentials — is never compiled into a production binary.
+Hatch uses this: your production `main.dart` never imports Hatch. Your dev `main_dev.dart` does. Therefore Hatch - including all test credentials - is never compiled into a production binary.
+This is the recommended pattern.
 
-This is the recommended pattern. There is also a simpler `kDebugMode` pattern (see [Production Safety](#production-safety) below) with honest tradeoffs.
+There is also a simpler `kDebugMode` pattern (see [Production Safety](#production-safety) below) with honest tradeoffs.
 
 ---
 
@@ -103,13 +103,13 @@ Add this to your app `.gitignore`:
 assets/hatch/hatch_config.json
 ```
 
-### 2. Create bootstrap.dart (shared)
+### 2. Create initialiser.dart (shared)
 
 ```dart
-// lib/bootstrap.dart
+// lib/initialiser.dart
 import 'package:flutter/widgets.dart';
 
-Future<void> bootstrap() async {
+Future<void> initialise() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Firebase, notifications, deep links etc.
 }
@@ -121,11 +121,11 @@ Future<void> bootstrap() async {
 // lib/main_dev.dart
 import 'package:flutter/material.dart';
 import 'package:hatch/hatch.dart';
-import 'bootstrap.dart';
+import 'initialiser.dart';
 import 'app.dart';
 
 void main() async {
-  await bootstrap();
+  await initialise();
 
   await Hatch.initFromAsset(
     'assets/hatch/hatch_config.json',
@@ -161,13 +161,13 @@ void main() async {
 ### 4. Create main.dart (production)
 
 ```dart
-// lib/main.dart — PRODUCTION — zero Hatch imports
+// lib/main.dart - PRODUCTION - zero Hatch imports
 import 'package:flutter/widgets.dart';
-import 'bootstrap.dart';
+import 'initialiser.dart';
 import 'app.dart';
 
 void main() async {
-  await bootstrap();
+  await initialise();
   runApp(const MyApp());
 }
 ```
@@ -178,31 +178,6 @@ void main() async {
 flutter run -t lib/main_dev.dart            # dev
 flutter build apk -t lib/main.dart --release  # production
 ```
-
----
-
-## Network Setup
-
-### Dio
-
-```dart
-final dio = Dio();
-dio.interceptors.add(HatchInterceptor());
-```
-
-`HatchInterceptor` automatically:
-- Replaces the base URL with the active Hatch environment
-- Merges environment-specific headers
-- Logs every request to the Network tab in the panel
-
-### http package
-
-```dart
-final client = HatchHttpClient(http.Client());
-final response = await client.get(Uri.parse('/users/1'));
-```
-
-Same behaviour as the Dio interceptor — base URL replacement, header merging, and logging.
 
 ---
 
@@ -289,8 +264,8 @@ Hatch.addShortcut(
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | `String` | Yes | — | Unique display name |
-| `baseUrl` | `String` | Yes | — | Full URL including scheme |
+| `name` | `String` | Yes | - | Unique display name |
+| `baseUrl` | `String` | Yes | - | Full URL including scheme |
 | `headers` | `Map<String, String>` | No | `{}` | Merged into every request (`$VAR` supported) |
 | `isDangerous` | `bool` | No | `false` | Shows confirmation dialog |
 | `personas` | `List<Persona>` | No | `[]` | Personas available in this environment |
@@ -299,7 +274,7 @@ Hatch.addShortcut(
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | `String` | Yes | — | Unique display name (within environment) |
+| `name` | `String` | Yes | - | Unique display name (within environment) |
 | `role` | `String?` | No | `null` | e.g. "admin", "user" |
 | `tag` | `String?` | No | `null` | e.g. "AU region", "trial" |
 | `credentials` | `Object?` | No | `null` | Email, password, apiToken, extra (`$VAR` supported) |
@@ -308,7 +283,7 @@ Hatch.addShortcut(
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `name` | `String` | Yes | — | Unique flag identifier |
+| `name` | `String` | Yes | - | Unique flag identifier |
 | `enabled` | `bool` | No | `false` | Initial state |
 | `description` | `String?` | No | `null` | Shown in panel |
 
@@ -324,7 +299,6 @@ await Hatch.initFromAsset(
     presentationStyle: HatchStyle.fullScreen,
     panelTheme: HatchTheme.system,
     dartDefineKeys: ['APP_ENV', 'API_VERSION'],
-    maxNetworkLogEntries: 100,
   ),
   defines: const {
     'STAGING_BASE_URL': String.fromEnvironment('STAGING_BASE_URL'),
@@ -411,7 +385,7 @@ jobs:
 
 ## Production Safety
 
-### Pattern A — Separate Entry Points (Recommended)
+### Pattern A - Separate Entry Points (Recommended)
 
 Your production `main.dart` never imports `package:hatch`. The Dart compiler only compiles code reachable from the specified entry point. Hatch, all test personas, and all credentials are structurally excluded from the production binary.
 
@@ -419,7 +393,7 @@ Your production `main.dart` never imports `package:hatch`. The Dart compiler onl
 flutter build apk -t lib/main.dart --release  # zero Hatch code
 ```
 
-### Pattern B — kDebugMode (Simple)
+### Pattern B - kDebugMode (Simple)
 
 ```dart
 import 'package:hatch/hatch.dart'; // still compiled
@@ -463,7 +437,6 @@ const HatchOptions({
   HatchStyle presentationStyle = HatchStyle.fullScreen,
   HatchTheme panelTheme = HatchTheme.system,
   List<String> dartDefineKeys = const [],
-  int maxNetworkLogEntries = 50,
 })
 ```
 
@@ -500,7 +473,7 @@ bool flag(String name);
 
 ### Does it work on physical devices?
 
-Yes. The two-finger long press trigger works on both simulators and physical devices. The shake trigger requires a physical device with an accelerometer.
+Yes. The two-finger long press trigger works on both simulators and physical devices. The shake trigger requires a physical device.
 
 ### Is it compatible with GoRouter / auto_route?
 
@@ -518,7 +491,7 @@ With Pattern B (kDebugMode): **Yes**, but never executed. The import causes comp
 
 ### Can I open the panel programmatically?
 
-Yes. Call `Hatch.open()` from anywhere — for example, a "Dev Tools" button in your settings screen.
+Yes. Call `Hatch.open()` from anywhere - for example, a "Dev Tools" button in your settings screen.
 
 ### What happens if I call flag() with an unknown name?
 
@@ -531,7 +504,7 @@ Returns `false`. Never throws. Never returns null.
 Contributions welcome. Please open an issue before submitting a PR for significant changes.
 
 ```bash
-git clone https://github.com/yourhandle/hatch.git
+git clone https://github.com/kapilmhr/hatch.git
 cd hatch
 flutter pub get
 flutter test

@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hatch/hatch.dart';
 
@@ -17,46 +14,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Dio _dio = Dio()..interceptors.add(HatchInterceptor());
-
-  int? _lastStatusCode;
-  int? _lastDurationMs;
-  String? _lastResponseBody;
-  bool _loading = false;
-
-  Future<void> _fireTestRequest() async {
-    setState(() => _loading = true);
-    final stopwatch = Stopwatch()..start();
-    try {
-      final response = await _dio.get('/users/1');
-      stopwatch.stop();
-      setState(() {
-        _lastStatusCode = response.statusCode;
-        _lastDurationMs = stopwatch.elapsedMilliseconds;
-        _lastResponseBody = _truncate(
-          response.data is String
-              ? response.data
-              : const JsonEncoder.withIndent('  ').convert(response.data),
-          200,
-        );
-      });
-    } on DioException catch (e) {
-      stopwatch.stop();
-      setState(() {
-        _lastStatusCode = e.response?.statusCode ?? 0;
-        _lastDurationMs = stopwatch.elapsedMilliseconds;
-        _lastResponseBody = e.message ?? 'Request failed';
-      });
-    } finally {
-      setState(() => _loading = false);
-    }
-  }
-
-  String _truncate(String text, int maxLen) {
-    if (text.length <= maxLen) return text;
-    return '${text.substring(0, maxLen)}...';
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -89,15 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
             _buildStateCard(theme),
             const SizedBox(height: 16),
 
-            // SECTION 2 — NETWORK TEST
-            _buildNetworkSection(theme),
-            const SizedBox(height: 16),
-
-            // SECTION 3 — FEATURE FLAG GATES
+            // SECTION 2 — FEATURE FLAG GATES
             _buildFlagGates(theme),
             const SizedBox(height: 16),
 
-            // SECTION 4 — NAVIGATION
+            // SECTION 3 — NAVIGATION
             _buildNavGrid(theme),
           ],
         ),
@@ -237,66 +190,6 @@ class _HomeScreenState extends State<HomeScreen> {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
-  }
-
-  Widget _buildNetworkSection(ThemeData theme) {
-    return HatchBuilder(
-      builder: (context, state) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Network Test',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Text(
-                  '${Hatch.baseUrl}/users/1',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontFamily: 'monospace',
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: _loading ? null : _fireTestRequest,
-                  icon: _loading
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send, size: 16),
-                  label: const Text('Fire test request →'),
-                ),
-                if (_lastStatusCode != null) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    'Status: $_lastStatusCode  Duration: ${_lastDurationMs}ms',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Body: ${_lastResponseBody ?? ""}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                    maxLines: 5,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
