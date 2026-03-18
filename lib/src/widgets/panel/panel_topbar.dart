@@ -42,7 +42,7 @@ class PanelTopBar extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            'hatch',
+            'Hatch',
             style: TextStyle(
               color: c.accent,
               fontSize: 14,

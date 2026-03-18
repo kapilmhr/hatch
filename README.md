@@ -4,6 +4,12 @@ An in-app developer overlay for Flutter. Switch environments, personas, and feat
 
 ---
 
+## Screenshots
+
+<img src="https://github.com/kapilmhr/hatch/raw/main/screenshots/environments.png" width="220" alt="Environments tab" /> <img src="https://github.com/kapilmhr/hatch/raw/main/screenshots/personas.png" width="220" alt="Personas tab" /> <img src="https://github.com/kapilmhr/hatch/raw/main/screenshots/flags.png" width="220" alt="Feature flags tab" /> <img src="https://github.com/kapilmhr/hatch/raw/main/screenshots/shortcuts.png" width="220" alt="Shortcuts tab" />
+
+---
+
 ## The Problem
 
 Without Hatch, switching from a staging API to a local API means:
