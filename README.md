@@ -143,10 +143,7 @@ void main() async {
       'ADMIN_PASSWORD': String.fromEnvironment('ADMIN_PASSWORD'),
     },
     onPersonaChanged: (persona) async {
-      if (persona == null) {
-        await AuthService.logout();
-        return;
-      }
+      if (persona == null) return;
       await AuthService.loginWithCredentials(
         email: persona.credentials!.email,
         password: persona.credentials!.password,
@@ -194,7 +191,7 @@ flutter build apk -t lib/main.dart --release  # production
 ```dart
 Hatch.baseUrl;              // "https://staging.api.com"
 Hatch.currentEnvironment;   // HatchEnvironment instance
-Hatch.currentPersona;       // HatchPersona? (null if guest)
+Hatch.currentPersona;       // HatchPersona? (null if none selected)
 Hatch.role;                 // "admin" or null
 Hatch.flag('newDashboard'); // true or false (false for unknown keys)
 ```
@@ -312,11 +309,7 @@ await Hatch.initFromAsset(
     'ADMIN_PASSWORD': String.fromEnvironment('ADMIN_PASSWORD'),
   },
   onPersonaChanged: (persona) async {
-    if (persona == null) {
-      await AuthService.logout();
-      return;
-    }
-    await AuthService.loginWithCredentials(
+    if (persona == null) return;
       email: persona.credentials!.email,
       password: persona.credentials!.password,
     );
@@ -468,7 +461,7 @@ Example CI:
 
 ```dart
 final HatchEnvironment environment;
-final HatchPersona? persona;
+final HatchPersona? persona; // null if none selected
 final List<HatchFlag> flags;
 bool flag(String name);
 ```

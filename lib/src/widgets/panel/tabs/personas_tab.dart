@@ -76,9 +76,9 @@ class _PersonasTabState extends State<PersonasTab> {
     return palette[hash % palette.length];
   }
 
-  Future<void> _switchPersona(HatchPersona? persona) async {
+  Future<void> _switchPersona(HatchPersona persona) async {
     await Hatch.setPersona(persona);
-    widget.onToast('✓ ${persona?.name ?? "Guest"} active');
+    widget.onToast('✓ ${persona.name} active');
   }
 
   @override
@@ -94,7 +94,6 @@ class _PersonasTabState extends State<PersonasTab> {
     final groups = <String, List<MapEntry<int, HatchPersona>>>{};
     for (var i = 0; i < personas.length; i++) {
       final p = personas[i];
-      if (p.credentials == null && p.role == null) continue; // Guest handled separately
       final groupName = p.role != null
           ? p.role![0].toUpperCase() + p.role!.substring(1)
           : 'Other';
@@ -115,8 +114,6 @@ class _PersonasTabState extends State<PersonasTab> {
               entry.value.name == active?.name,
             ),
         ],
-        // Guest row always last
-        _buildGuestRow(c, active == null),
       ],
     );
   }
@@ -446,93 +443,4 @@ class _PersonasTabState extends State<PersonasTab> {
     );
   }
 
-  Widget _buildGuestRow(HatchPanelColors c, bool isActive) {
-    return GestureDetector(
-      onTap: () => _switchPersona(null),
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: isActive ? c.greenSoft : null,
-          borderRadius: BorderRadius.circular(8),
-          border: Border(
-            left: BorderSide(
-              color: isActive ? c.green : const Color(0x00000000),
-              width: 2,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isActive ? c.green : c.textTertiary,
-                  width: 1.5,
-                ),
-                color: isActive ? c.green : null,
-              ),
-              child: isActive
-                  ? Center(
-                      child: Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFFFFFFFF),
-                        ),
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 8),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: c.surfaceElevated,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                'G',
-                style: TextStyle(
-                  color: c.textTertiary,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'monospace',
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Guest (No Auth)',
-              style: TextStyle(
-                color: c.textPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                decoration: TextDecoration.none,
-              ),
-            ),
-            if (isActive) ...[
-              const SizedBox(width: 6),
-              Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: c.green,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 }
