@@ -1,0 +1,33 @@
+# Flutter / Dart tooling
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+
+# Build outputs
+build/
+coverage/
+
+# Platform artifacts
+**/ios/Flutter/.last_build_id
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+
+# IDE / OS
+.DS_Store
+.idea/
+*.iml
+
+# Sensitive local Hatch config (keep only template in git)
+example/assets/hatch/hatch_config.json
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Local/internal spec docs
+docs/HATCH_BUILD_SPEC.md

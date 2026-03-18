@@ -1,0 +1,21 @@
+name: hatch
+description: An in-app developer overlay for Flutter. Switch environments, personas, feature flags, and inspect network — at runtime, without rebuilding.
+version: 1.0.0
+homepage: https://github.com/yourhandle/hatch
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.2.0
+  package_info_plus: ^5.0.0
+  dio: ^5.0.0
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0

@@ -1,0 +1,113 @@
+{
+  "environments": [
+    {
+      "name": "Local",
+      "baseUrl": "$LOCAL_BASE_URL",
+      "headers": { "X-Dev-Source": "hatch-local" },
+      "personas": [
+        {
+          "name": "Admin User",
+          "role": "admin",
+          "tag": "full access",
+          "credentials": { "email": "$ADMIN_EMAIL", "password": "$ADMIN_PASSWORD" }
+        },
+        {
+          "name": "Free User AU",
+          "role": "user",
+          "tag": "AU region",
+          "credentials": { "email": "$FREE_AU_EMAIL", "password": "$FREE_AU_PASSWORD" }
+        }
+      ]
+    },
+    {
+      "name": "Staging",
+      "baseUrl": "$STAGING_BASE_URL",
+      "headers": { "X-Dev-Source": "hatch-staging" },
+      "personas": [
+        {
+          "name": "Admin User",
+          "role": "admin",
+          "tag": "full access",
+          "credentials": { "email": "$ADMIN_EMAIL", "password": "$ADMIN_PASSWORD" }
+        },
+        {
+          "name": "Admin Read-Only",
+          "role": "admin",
+          "tag": "read only",
+          "credentials": { "email": "$ADMIN_RO_EMAIL", "password": "$ADMIN_RO_PASSWORD" }
+        },
+        {
+          "name": "Premium AU",
+          "role": "user",
+          "tag": "AU region",
+          "credentials": { "email": "$PREMIUM_AU_EMAIL", "password": "$PREMIUM_AU_PASSWORD" }
+        },
+        {
+          "name": "Premium US",
+          "role": "user",
+          "tag": "US region",
+          "credentials": { "email": "$PREMIUM_US_EMAIL", "password": "$PREMIUM_US_PASSWORD" }
+        },
+        {
+          "name": "Premium Trial",
+          "role": "user",
+          "tag": "trial",
+          "credentials": { "email": "$TRIAL_EMAIL", "password": "$TRIAL_PASSWORD" }
+        },
+        {
+          "name": "Free User AU",
+          "role": "user",
+          "tag": "AU region",
+          "credentials": { "email": "$FREE_AU_EMAIL", "password": "$FREE_AU_PASSWORD" }
+        },
+        {
+          "name": "Free User US",
+          "role": "user",
+          "tag": "US region",
+          "credentials": { "email": "$FREE_US_EMAIL", "password": "$FREE_US_PASSWORD" }
+        },
+        {
+          "name": "Free Upgrading",
+          "role": "user",
+          "tag": "upgrading",
+          "credentials": { "email": "$UPGRADING_EMAIL", "password": "$UPGRADING_PASSWORD" }
+        }
+      ]
+    },
+    {
+      "name": "Production",
+      "baseUrl": "$PROD_BASE_URL",
+      "isDangerous": true,
+      "personas": [
+        {
+          "name": "Admin User",
+          "role": "admin",
+          "tag": "full access",
+          "credentials": { "email": "$ADMIN_EMAIL", "password": "$ADMIN_PASSWORD" }
+        }
+      ]
+    }
+  ],
+  "featureFlags": [
+    {
+      "name": "newDashboard",
+      "enabled": true,
+      "description": "Redesigned home screen layout"
+    },
+    {
+      "name": "showUpgradeBanner",
+      "enabled": false,
+      "description": "Show upsell banner on home screen"
+    },
+    {
+      "name": "betaSearch",
+      "enabled": false,
+      "description": "AI-powered search - not production ready"
+    },
+    {
+      "name": "analyticsV2",
+      "enabled": true,
+      "description": "New analytics pipeline"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Hatch Example (dev)",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/example/lib/main_dev.dart",
+      "cwd": "${workspaceFolder}/example",
+      "args": []
+    },
+    {
+      "name": "Hatch Example (production)",
+      "request": "launch",
+      "type": "dart",
+      "program": "${workspaceFolder}/example/lib/main.dart",
+      "cwd": "${workspaceFolder}/example",
+      "args": []
+    }
+  ]
+}

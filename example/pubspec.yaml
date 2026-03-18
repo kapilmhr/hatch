@@ -1,0 +1,19 @@
+name: hatch_example
+description: Example app demonstrating the Hatch Flutter dev overlay.
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hatch:
+    path: ../
+  dio: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/hatch/
