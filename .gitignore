@@ -6,9 +6,23 @@
 .pub/
 .pub-cache/
 
+# Ignore dotfiles/directories everywhere (e.g. .vscode, .idea, .metadata)
+**/.*
+
+# Keep gitignore files themselves trackable
+!.gitignore
+!**/.gitignore
+
 # Build outputs
 build/
 coverage/
+
+# Temporary/local artifacts
+*.log
+*.tmp
+*.temp
+*.swp
+*~
 
 # Platform artifacts
 **/ios/Flutter/.last_build_id
@@ -28,6 +42,9 @@ example/assets/hatch/hatch_config.json
 .env
 .env.*
 !.env.example
+
+# Local helper scripts (optional, keep if generated per-developer)
+*.local.sh
 
 # Local/internal spec docs
 docs/HATCH_BUILD_SPEC.md
